@@ -23,6 +23,10 @@ raw_test_x_path_STARE = './data/STARE/test/stare-images/*.ppm'
 raw_test_y_path_STARE = './data/STARE/test/labels-ah/*.ppm'
 raw_test_mask_path_STARE = './data/STARE/test/mask/*mask.png'
 
+raw_test_x_path_MYTEST = './data/MYTEST/images/*.jpg'
+raw_test_y_path_MYTEST = None
+raw_test_mask_path_MYTEST = None
+
 raw_data_path = None
 raw_data_path_DRIVE = [raw_training_x_path_DRIVE, raw_training_y_path_DRIVE, raw_test_x_path_DRIVE,
                        raw_test_y_path_DRIVE, raw_test_mask_path_DRIVE]
@@ -31,7 +35,10 @@ raw_data_path_CHASEDB1 = [raw_training_x_path_CHASEDB1, raw_training_y_path_CHAS
 raw_data_path_STARE = [raw_training_x_path_STARE, raw_training_y_path_STARE, raw_test_x_path_STARE,
                        raw_test_y_path_STARE, raw_test_mask_path_STARE]
 
-HDF5_data_path = './data/HDF5/'
+raw_data_path_MYTEST = [None, None, raw_test_x_path_MYTEST, raw_test_y_path_MYTEST, raw_test_mask_path_MYTEST]
+
+# HDF5_data_path = './data/HDF5/'
+HDF5_data_path = "./trained_model/"   
 
 DESIRED_DATA_SHAPE_DRIVE = (576, 576)
 DESIRED_DATA_SHAPE_CHASEDB1 = (960, 960)
@@ -100,6 +107,8 @@ def prepareDataset(dataset):
         DESIRED_DATA_SHAPE = DESIRED_DATA_SHAPE_CHASEDB1
     elif dataset == 'STARE':
         DESIRED_DATA_SHAPE = DESIRED_DATA_SHAPE_STARE
+    elif dataset == 'MYTEST':
+        DESIRED_DATA_SHAPE = (512, 512)
 
     if dataset == 'DRIVE':
         raw_data_path = raw_data_path_DRIVE
@@ -107,6 +116,8 @@ def prepareDataset(dataset):
         raw_data_path = raw_data_path_CHASEDB1
     elif dataset == 'STARE':
         raw_data_path = raw_data_path_STARE
+    elif dataset == 'MYTEST':
+        raw_data_path = raw_data_path_MYTEST
 
     if isHDF5exists(raw_data_path, HDF5_data_path):
         return
@@ -131,6 +142,8 @@ def getTrainingData(XorY, dataset):
         raw_training_x_path, raw_training_y_path = raw_data_path_CHASEDB1[:2]
     elif dataset == 'STARE':
         raw_training_x_path, raw_training_y_path = raw_data_path_STARE[:2]
+    elif dataset == 'MYTEST':
+        raw_training_x_path, raw_training_y_path = raw_data_path_MYTEST[:2]
 
     if XorY == 0:
         raw_splited = raw_training_x_path.split('/')
@@ -153,10 +166,25 @@ def getTestData(XorYorMask, dataset):
         raw_test_x_path, raw_test_y_path, raw_test_mask_path = raw_data_path_CHASEDB1[2:]
     elif dataset == 'STARE':
         raw_test_x_path, raw_test_y_path, raw_test_mask_path = raw_data_path_STARE[2:]
+    elif dataset == 'MYTEST':
+        raw_test_x_path, raw_test_y_path, raw_test_mask_path = raw_data_path_MYTEST[2:]
+
+    # if XorYorMask == 0:
+    #     raw_splited = raw_test_x_path.split('/')
+    # elif XorYorMask == 1:
+    #     raw_splited = raw_test_y_path.split('/')
+    # else:
+    #     if not raw_test_mask_path:
+    #         return None
+    #     raw_splited = raw_test_mask_path.split('/')
 
     if XorYorMask == 0:
+        if not raw_test_x_path:
+            return None
         raw_splited = raw_test_x_path.split('/')
     elif XorYorMask == 1:
+        if not raw_test_y_path:
+            return None
         raw_splited = raw_test_y_path.split('/')
     else:
         if not raw_test_mask_path:
